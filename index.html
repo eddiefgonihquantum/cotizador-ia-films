@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cotizador | IA-FILMS x BangAI</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0d1117; color: #c9d1d9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px 60px; }
+    .header { text-align: center; padding: 48px 0 32px; }
+    .header-logos { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 28px; flex-wrap: wrap; }
+    .logo-circle { width: 64px; height: 64px; border-radius: 50%; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid #333; }
+    .logo-circle .ia { font-size: 14px; font-weight: 900; color: #0d1117; letter-spacing: 1px; }
+    .logo-circle .films { font-size: 7px; font-weight: 600; color: #555; letter-spacing: 2px; }
+    .logo-sym { font-size: 24px; color: #6e7681; }
+    .logo-text { display: flex; flex-direction: column; align-items: flex-start; }
+    .logo-text .goodlife { font-size: 22px; font-weight: 900; color: #fff; letter-spacing: 4px; }
+    .logo-text .studio { font-size: 10px; letter-spacing: 6px; color: #8b949e; }
+    .logo-heart { font-size: 36px; color: transparent; -webkit-text-stroke: 2px #c9d1d9; }
+    .header h1 { font-size: 42px; font-weight: 700; color: #fff; margin-bottom: 10px; }
+    .header p { color: #8b949e; font-size: 16px; }
+    .divider { border: none; border-top: 1px solid #21262d; margin: 0 0 32px; }
+    .section-title { font-size: 20px; font-weight: 600; color: #e6edf3; margin-bottom: 16px; }
+    .card { background: #fff; border-radius: 16px; padding: 28px; margin-bottom: 32px; }
+    .card.green-border { border: 1px solid rgba(34,197,94,0.3); }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    @media (max-width: 768px) { .grid-3 { grid-template-columns: 1fr; } }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label { font-size: 13px; font-weight: 500; color: #57606a; }
+    .input-wrap { position: relative; }
+    .input-wrap .prefix { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #57606a; font-size: 15px; font-weight: 500; }
+    .input-wrap input { width: 100%; padding: 10px 12px 10px 28px; border: 1px solid #d0d7de; border-radius: 8px; font-size: 15px; color: #24292f; background: #f6f8fa; outline: none; transition: border .2s; }
+    .input-wrap input:focus { border-color: #0969da; background: #fff; }
+    .field > input { width: 100%; padding: 10px 12px; border: 1px solid #d0d7de; border-radius: 8px; font-size: 15px; color: #24292f; background: #f6f8fa; outline: none; transition: border .2s; }
+    .field > input:focus { border-color: #0969da; background: #fff; }
+    .factores-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    @media (max-width: 768px) { .factores-grid { grid-template-columns: 1fr; } }
+    .factor-group h3 { font-size: 12px; font-weight: 700; color: #24292f; margin-bottom: 12px; text-transform: uppercase; letter-spacing: .5px; }
+    .radio-option { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; cursor: pointer; margin-bottom: 6px; border: 1.5px solid #e1e4e8; transition: all .15s; background: #f6f8fa; }
+    .radio-option:hover { border-color: #22c55e; background: #f0fdf4; }
+    .radio-option.selected { border-color: #22c55e; background: #f0fdf4; }
+    .radio-option input[type=radio] { accent-color: #22c55e; width: 16px; height: 16px; cursor: pointer; }
+    .radio-label { flex: 1; font-size: 14px; color: #24292f; font-weight: 500; }
+    .radio-pct { font-size: 12px; font-weight: 700; }
+    .radio-pct.neutral { color: #8b949e; }
+    .radio-pct.plus { color: #ef4444; }
+    .radio-pct.minus { color: #22c55e; }
+    .ajuste-badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 13px; font-weight: 700; margin-left: 8px; vertical-align: middle; }
+    .ajuste-badge.neutro { background: #e1e4e8; color: #57606a; }
+    .ajuste-badge.positivo { background: #fef2f2; color: #ef4444; }
+    .ajuste-badge.negativo { background: #f0fdf4; color: #22c55e; }
+    .results-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+    @media (max-width: 900px) { .results-grid { grid-template-columns: repeat(2, 1fr); } }
+    .result-card { background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #e1e4e8; }
+    .result-card.highlight { background: #22c55e; border-color: #22c55e; }
+    .result-card .r-label { font-size: 12px; color: #57606a; font-weight: 500; margin-bottom: 8px; }
+    .result-card.highlight .r-label { color: #dcfce7; }
+    .result-card .r-value { font-size: 20px; font-weight: 700; color: #22c55e; }
+    .result-card.highlight .r-value { color: #fff; font-size: 26px; }
+    .table-wrap { background: #fff; border-radius: 16px; padding: 8px; margin-bottom: 32px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 12px 16px; text-align: left; font-size: 13px; font-weight: 600; color: #57606a; border-bottom: 1px solid #e1e4e8; }
+    td { padding: 12px 16px; font-size: 14px; color: #24292f; border-bottom: 1px solid #f0f2f4; }
+    td.mono { font-weight: 600; }
+    td.pct { color: #22c55e; font-weight: 600; }
+    tr:last-child td { border-bottom: none; }
+    .params-card { background: #fff; border-radius: 16px; padding: 28px; border-left: 4px solid #22c55e; margin-bottom: 32px; }
+    .param-helper { font-size: 12px; color: #8b949e; margin-top: 4px; }
+    .scenarios-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+    @media (max-width: 900px) { .scenarios-grid { grid-template-columns: repeat(2, 1fr); } }
+    .scenario-card { background: #fff; border-radius: 16px; padding: 22px; border: 1px solid #e1e4e8; position: relative; }
+    .scenario-card.current { border: 2px solid #22c55e; }
+    .badge-actual { position: absolute; top: 12px; right: 12px; background: #22c55e; color: #fff; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
+    .sc-title { font-size: 16px; font-weight: 700; color: #24292f; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .sc-row { display: flex; justify-content: space-between; font-size: 13px; color: #57606a; margin-bottom: 6px; }
+    .sc-row span:last-child { color: #24292f; font-weight: 600; }
+    .sc-total { margin-top: 14px; background: #22c55e; color: #fff; text-align: center; padding: 12px; border-radius: 10px; font-size: 18px; font-weight: 700; }
+    footer { text-align: center; padding: 32px 0; border-top: 1px solid #21262d; }
+    footer .footer-brand { font-size: 18px; font-weight: 700; color: #22c55e; margin-bottom: 6px; }
+    footer .footer-sub { font-size: 13px; color: #8b949e; margin-bottom: 4px; }
+    footer .footer-copy { font-size: 12px; color: #6e7681; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-logos">
+      <div class="logo-circle"><span class="ia">IA</span><span class="films">FILMS</span></div>
+      <span class="logo-sym">+</span>
+      <div class="logo-text"><span class="goodlife">GOODLIFE</span><span class="studio">S T U D I O</span></div>
+      <span class="logo-sym">=</span>
+      <span class="logo-heart">&#9825;</span>
+    </div>
+    <h1>Cotizador</h1>
+    <p>Generaci&#243;n de video con IA. Par&#225;metros inteligentes, c&#225;lculos en tiempo real.</p>
+  </header>
+  <hr class="divider" />
+
+  <!-- PROYECTO -->
+  <div class="section-title">Proyecto</div>
+  <div class="card">
+    <div class="grid-3">
+      <div class="field">
+        <label>Nombre del Proyecto</label>
+        <input type="text" id="nombreProyecto" value="Comercial Lim&#243;n Soda Zero" />
+      </div>
+      <div class="field">
+        <label>N&#250;mero de Cuadros</label>
+        <input type="number" id="numCuadros" value="15" min="1" />
+      </div>
+      <div class="field">
+        <label>Duraci&#243;n Estimada</label>
+        <input type="text" id="duracion" value="60 segundos" />
+      </div>
+    </div>
+  </div>
+
+  <!-- ESTRUCTURA DE COSTOS -->
+  <div class="section-title">Estructura de Costos</div>
+  <div class="card">
+    <div class="grid-3">
+      <div class="field">
+        <label>Generaci&#243;n IA ($/cuadro)</label>
+        <div class="input-wrap"><span class="prefix">$</span><input type="number" id="genIA" value="350000" min="0" /></div>
+      </div>
+      <div class="field">
+        <label>Post Producci&#243;n ($/cuadro)</label>
+        <div class="input-wrap"><span class="prefix">$</span><input type="number" id="postProd" value="50000" min="0" /></div>
+      </div>
+      <div class="field">
+        <label>M&#250;sica</label>
+        <div class="input-wrap"><span class="prefix">$</span><input type="number" id="musica" value="100000" min="0" /></div>
+      </div>
+      <div class="field">
+        <label>Locuci&#243;n</label>
+        <div class="input-wrap"><span class="prefix">$</span><input type="number" id="locucion" value="200000" min="0" /></div>
+      </div>
+      <div class="field">
+        <label>Estudio de Audio</label>
+        <div class="input-wrap"><span class="prefix">$</span><input type="number" id="estudio" value="500000" min="0" /></div>
+      </div>
+      <div class="field">
+        <label>Administraci&#243;n</label>
+        <div class="input-wrap"><span class="prefix">$</span><input type="number" id="admin" value="300000" min="0" /></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FACTORES DE AJUSTE -->
+  <div class="section-title">
+    Factores de Ajuste
+    <span class="ajuste-badge neutro" id="ajuste-total-badge">+0%</span>
+  </div>
+  <div class="card green-border">
+    <p style="font-size:13px;color:#57606a;margin-bottom:20px;">Impactan directamente en el costo total &#8594; venta sin IVA &#8594; total factura</p>
+    <div class="factores-grid">
+
+      <div class="factor-group">
+        <h3>Riesgo de Extensi&#243;n del Proyecto</h3>
+        <label class="radio-option selected">
+          <input type="radio" name="riesgo" value="0" checked onchange="handleRadio(this);calcular()" />
+          <span class="radio-label">Bajo</span><span class="radio-pct neutral">0%</span>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="riesgo" value="10" onchange="handleRadio(this);calcular()" />
+          <span class="radio-label">Medio</span><span class="radio-pct plus">+10%</span>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="riesgo" value="20" onchange="handleRadio(this);calcular()" />
+          <span class="radio-label">Alto</span><span class="radio-pct plus">+20%</span>
+        </label>
+      </div>
+
+      <div class="factor-group">
+        <h3>Complejidad del Proyecto</h3>
+        <label class="radio-option selected">
+          <input type="radio" name="complejidad" value="0" checked onchange="handleRadio(this);calcular()" />
+          <span class="radio-label">Est&#225;ndar</span><span class="radio-pct neutral">0%</span>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="complejidad" value="5" onchange="handleRadio(this);calcular()" />
+          <span class="radio-label">Medio</span><span class="radio-pct plus">+5%</span>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="complejidad" value="15" onchange="handleRadio(this);calcular()" />
+          <span class="radio-label">Complejo</span><span class="radio-pct plus">+15%</span>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="complejidad" value="30" onchange="handleRadio(this);calcular()" />
+          <span class="radio-label">Complejo a Cagar</span><span class="radio-pct plus">+30%</span>
+        </label>
+      </div>
+
+      <div class="factor-group">
+        <h3>Impacto Emocional del Proyecto</h3>
+        <label class="radio-option">
+          <input type="radio" name="impacto" value="-5" onchange="handleRadio(this);calcular()" />
+          <span class="radio-label">Positivo</span><span class="radio-pct minus">-5%</span>
+        </label>
+        <label class="radio-option selected">
+          <input type="radio" name="impacto" value="0" checked onchange="handleRadio(this);calcular()" />
+          <span class="radio-label">Neutro</span><span class="radio-pct neutral">0%</span>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="impacto" value="10" onchange="handleRadio(this);calcular()" />
+          <span class="radio-label">Negativo</span><span class="radio-pct plus">+10%</span>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="impacto" value="30" onchange="handleRadio(this);calcular()" />
+          <span class="radio-label">Pa la Corneta</span><span class="radio-pct plus">+30%</span>
+        </label>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RESULTADOS -->
+  <div class="section-title">Resultados</div>
+  <div class="results-grid">
+    <div class="result-card">
+      <div class="r-label">Costo Base</div>
+      <div class="r-value" id="r-costoBase">$0</div>
+    </div>
+    <div class="result-card">
+      <div class="r-label">Costo Ajustado</div>
+      <div class="r-value" id="r-costoAjustado">$0</div>
+    </div>
+    <div class="result-card">
+      <div class="r-label" id="r-utilidadLabel">Utilidad 30%</div>
+      <div class="r-value" id="r-utilidad">$0</div>
+    </div>
+    <div class="result-card">
+      <div class="r-label" id="r-honorarioLabel">Honorario 7%</div>
+      <div class="r-value" id="r-honorario">$0</div>
+    </div>
+    <div class="result-card">
+      <div class="r-label" id="r-retencionLabel">Retenci&#243;n SII 15%</div>
+      <div class="r-value" id="r-retencion">$0</div>
+    </div>
+    <div class="result-card">
+      <div class="r-label">IVA 19%</div>
+      <div class="r-value" id="r-iva">$0</div>
+    </div>
+    <div class="result-card">
+      <div class="r-label">Venta sin IVA</div>
+      <div class="r-value" id="r-ventaSinIVA">$0</div>
+    </div>
+    <div class="result-card highlight">
+      <div class="r-label">TOTAL FACTURA</div>
+      <div class="r-value" id="r-totalFactura">$0</div>
+    </div>
+  </div>
+
+  <!-- TABLA DE DESGLOSE -->
+  <div class="section-title">Tabla de Desglose</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Concepto</th><th>Monto CLP</th><th>% Total</th><th>% Venta</th>
+        </tr>
+      </thead>
+      <tbody id="tablaDesglose"></tbody>
+    </table>
+  </div>
+
+  <!-- PARÁMETROS DE GANANCIA -->
+  <div class="section-title">Par&#225;metros de Ganancia</div>
+  <div class="params-card">
+    <div class="grid-3">
+      <div class="field">
+        <label>Utilidad Empresa (%)</label>
+        <input type="number" id="utilidadPct" value="30" min="0" max="100" />
+        <span class="param-helper">Margen de ganancia</span>
+      </div>
+      <div class="field">
+        <label>Honorario Productor (%)</label>
+        <input type="number" id="honorarioPct" value="7" min="0" max="100" />
+        <span class="param-helper">Sobre subtotal venta</span>
+      </div>
+      <div class="field">
+        <label>Retenci&#243;n SII (%)</label>
+        <input type="number" id="retencionPct" value="15" min="0" max="100" />
+        <span class="param-helper">Sobre honorario productor</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPARATIVA DE ESCENARIOS -->
+  <div class="section-title">Comparativa de Escenarios</div>
+  <div class="scenarios-grid" id="scenarios"></div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-brand">IA-FILMS &#215; BangAI</div>
+    <div class="footer-sub">Cotizador Premium | Producci&#243;n de Video con IA</div>
+    <div class="footer-copy">&#169; 2026 BangAI. EL SISTEMA, NO LA SOLUCI&#211;N.</div>
+  </footer>
+
+</div>
+<script>
+  function fmt(n) {
+    return '$' + Math.round(n).toLocaleString('es-CL');
+  }
+
+  function handleRadio(el) {
+    document.querySelectorAll('input[name="' + el.name + '"]').forEach(function(r) {
+      r.closest('.radio-option').classList.remove('selected');
+    });
+    el.closest('.radio-option').classList.add('selected');
+  }
+
+  function radioVal(name) {
+    var el = document.querySelector('input[name="' + name + '"]:checked');
+    return el ? parseFloat(el.value) : 0;
+  }
+
+  function calcEscenario(cuadros) {
+    var genIA     = parseFloat(document.getElementById('genIA').value)      || 0;
+    var postProd  = parseFloat(document.getElementById('postProd').value)   || 0;
+    var musica    = parseFloat(document.getElementById('musica').value)     || 0;
+    var locucion  = parseFloat(document.getElementById('locucion').value)   || 0;
+    var estudio   = parseFloat(document.getElementById('estudio').value)    || 0;
+    var admin     = parseFloat(document.getElementById('admin').value)      || 0;
+    var uPct      = parseFloat(document.getElementById('utilidadPct').value)  || 0;
+    var hPct      = parseFloat(document.getElementById('honorarioPct').value) || 0;
+    var rPct      = parseFloat(document.getElementById('retencionPct').value) || 0;
+    var riesgo    = radioVal('riesgo');
+    var comp      = radioVal('complejidad');
+    var imp       = radioVal('impacto');
+
+    var costoBase     = (genIA + postProd) * cuadros + musica + locucion + estudio + admin;
+    var factorAjuste  = 1 + (riesgo / 100) + (comp / 100) + (imp / 100);
+    var costoAjustado = costoBase * factorAjuste;
+    var utilidad      = costoAjustado * (uPct / 100);
+    var costoTotal    = costoAjustado + utilidad;
+    var honorario     = costoTotal * (hPct / 100);
+    var retencion     = honorario * (rPct / 100);
+    var ventaSinIVA   = costoTotal + honorario - retencion;
+    var iva           = ventaSinIVA * 0.19;
+    var totalFactura  = ventaSinIVA + iva;
+
+    return {
+      costoBase: costoBase,
+      factorAjuste: factorAjuste,
+      costoAjustado: costoAjustado,
+      utilidad: utilidad,
+      costoTotal: costoTotal,
+      honorario: honorario,
+      retencion: retencion,
+      ventaSinIVA: ventaSinIVA,
+      iva: iva,
+      totalFactura: totalFactura,
+      genIAv: genIA * cuadros,
+      postProdv: postProd * cuadros,
+      musica: musica,
+      locucion: locucion,
+      estudio: estudio,
+      admin: admin
+    };
+  }
+
+  function calcular() {
+    var cuadros = parseFloat(document.getElementById('numCuadros').value) || 0;
+    var uPct    = parseFloat(document.getElementById('utilidadPct').value)  || 0;
+    var hPct    = parseFloat(document.getElementById('honorarioPct').value) || 0;
+    var rPct    = parseFloat(document.getElementById('retencionPct').value) || 0;
+    var r       = calcEscenario(cuadros);
+    var ajustePct = ((r.factorAjuste - 1) * 100).toFixed(1);
+
+    var badge = document.getElementById('ajuste-total-badge');
+    badge.textContent = (parseFloat(ajustePct) > 0 ? '+' : '') + ajustePct + '%';
+    badge.className = 'ajuste-badge ' + (parseFloat(ajustePct) > 0 ? 'positivo' : parseFloat(ajustePct) < 0 ? 'negativo' : 'neutro');
+
+    document.getElementById('r-costoBase').textContent      = fmt(r.costoBase);
+    document.getElementById('r-costoAjustado').textContent  = fmt(r.costoAjustado);
+    document.getElementById('r-utilidadLabel').textContent  = 'Utilidad ' + uPct + '%';
+    document.getElementById('r-utilidad').textContent       = fmt(r.utilidad);
+    document.getElementById('r-honorarioLabel').textContent = 'Honorario ' + hPct + '%';
+    document.getElementById('r-honorario').textContent      = fmt(r.honorario);
+    document.getElementById('r-retencionLabel').textContent = 'Retenci\u00f3n SII ' + rPct + '%';
+    document.getElementById('r-retencion').textContent      = fmt(r.retencion);
+    document.getElementById('r-iva').textContent            = fmt(r.iva);
+    document.getElementById('r-ventaSinIVA').textContent    = fmt(r.ventaSinIVA);
+    document.getElementById('r-totalFactura').textContent   = fmt(r.totalFactura);
+
+    var totalRef = r.totalFactura || 1;
+    var ventaRef = r.ventaSinIVA  || 1;
+
+    var filas = [
+      { c: 'Generaci\u00f3n IA',      m: r.genIAv    },
+      { c: 'Post Producci\u00f3n',     m: r.postProdv },
+      { c: 'M\u00fasica',              m: r.musica    },
+      { c: 'Locuci\u00f3n',            m: r.locucion  },
+      { c: 'Estudio de Audio',         m: r.estudio   },
+      { c: 'Administraci\u00f3n',      m: r.admin     },
+      { c: 'Honorario Productor',      m: r.honorario },
+      { c: 'Retenci\u00f3n SII',       m: r.retencion },
+      { c: 'Utilidad Operativa',       m: r.utilidad  },
+      { c: 'IVA 19%',                  m: r.iva       }
+    ];
+
+    document.getElementById('tablaDesglose').innerHTML = filas.map(function(f) {
+      return '<tr><td>' + f.c + '</td>' +
+             '<td class="mono">' + fmt(f.m) + '</td>' +
+             '<td class="pct">' + ((f.m / totalRef) * 100).toFixed(2) + '%</td>' +
+             '<td class="pct">' + ((f.m / ventaRef) * 100).toFixed(2) + '%</td></tr>';
+    }).join('');
+
+    var scenDefs = [
+      { n: 'B\u00e1sico',   e: '&#127841;', d: -3 },
+      { n: 'Est\u00e1ndar', e: '&#127842;', d:  0, actual: true },
+      { n: 'Completo',      e: '&#128309;', d: +3 },
+      { n: 'Premium',       e: '&#128308;', d: +5 }
+    ];
+
+    document.getElementById('scenarios').innerHTML = scenDefs.map(function(s) {
+      var c  = Math.max(1, cuadros + s.d);
+      var sr = calcEscenario(c);
+      return '<div class="scenario-card' + (s.actual ? ' current' : '') + '">' +
+        (s.actual ? '<span class="badge-actual">Actual</span>' : '') +
+        '<div class="sc-title">' + s.e + ' ' + s.n + '</div>' +
+        '<div class="sc-row"><span>Cuadros:</span><span>' + c + '</span></div>' +
+        '<div class="sc-row"><span>Costo Base:</span><span>' + fmt(sr.costoBase) + '</span></div>' +
+        '<div class="sc-row"><span>Ajuste:</span><span>' + ((sr.factorAjuste - 1) * 100).toFixed(1) + '%</span></div>' +
+        '<div class="sc-row"><span>Utilidad:</span><span>' + fmt(sr.utilidad) + '</span></div>' +
+        '<div class="sc-total">' + fmt(sr.totalFactura) + '</div>' +
+        '</div>';
+    }).join('');
+  }
+
+  document.querySelectorAll('input').forEach(function(el) {
+    el.addEventListener('input', calcular);
+    el.addEventListener('change', calcular);
+  });
+
+  calcular();
+</script>
+</body>
+</html>
