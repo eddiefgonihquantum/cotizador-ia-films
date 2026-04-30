@@ -217,6 +217,33 @@
     </div>
   </div>
 
+  <!-- PARÁMETROS DE GANANCIA -->
+  <div class="section-title">Par&#225;metros de Ganancia</div>
+  <div class="params-card">
+    <div class="grid-3">
+      <div class="field">
+        <label>Utilidad Empresa (%)</label>
+        <input type="number" id="utilidadPct" value="30" min="0" max="100" />
+        <span class="param-helper">Margen de ganancia</span>
+      </div>
+      <div class="field">
+        <label>Honorario Productor (%)</label>
+        <input type="number" id="honorarioPct" value="7" min="0" max="100" />
+        <span class="param-helper">Sobre subtotal venta</span>
+      </div>
+      <div class="field">
+        <label>Retenci&#243;n SII (%)</label>
+        <input type="number" id="retencionPct" value="15" min="0" max="100" />
+        <span class="param-helper">Sobre honorario productor</span>
+      </div>
+      <div class="field">
+        <label>Comisión Agencia (%)</label>
+        <input type="number" id="comisionAgenciaPct" value="0" min="0" max="100" />
+        <span class="param-helper">Se suma a venta sin IVA</span>
+      </div>
+    </div>
+  </div>
+
   <!-- RESULTADOS -->
   <div class="section-title">Resultados</div>
   <div class="results-grid">
@@ -271,37 +298,6 @@
     </table>
   </div>
 
-  <!-- PARÁMETROS DE GANANCIA -->
-  <div class="section-title">Par&#225;metros de Ganancia</div>
-  <div class="params-card">
-    <div class="grid-3">
-      <div class="field">
-        <label>Utilidad Empresa (%)</label>
-        <input type="number" id="utilidadPct" value="30" min="0" max="100" />
-        <span class="param-helper">Margen de ganancia</span>
-      </div>
-      <div class="field">
-        <label>Honorario Productor (%)</label>
-        <input type="number" id="honorarioPct" value="7" min="0" max="100" />
-        <span class="param-helper">Sobre subtotal venta</span>
-      </div>
-      <div class="field">
-        <label>Retenci&#243;n SII (%)</label>
-        <input type="number" id="retencionPct" value="15" min="0" max="100" />
-        <span class="param-helper">Sobre honorario productor</span>
-      </div>
-      <div class="field">
-        <label>Comisión Agencia (%)</label>
-        <input type="number" id="comisionAgenciaPct" value="0" min="0" max="100" />
-        <span class="param-helper">Se suma a venta sin IVA</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- COMPARATIVA DE ESCENARIOS -->
-  <div class="section-title">Comparativa de Escenarios</div>
-  <div class="scenarios-grid" id="scenarios"></div>
-
   <!-- FOOTER -->
   <footer>
     <div class="footer-brand">IA-FILMS &#215; BangAI</div>
@@ -325,54 +321,6 @@
   function radioVal(name) {
     var el = document.querySelector('input[name="' + name + '"]:checked');
     return el ? parseFloat(el.value) : 0;
-  }
-
-  function calcEscenario(cuadros) {
-    var genIA     = parseFloat(document.getElementById('genIA').value)      || 0;
-    var postProd  = parseFloat(document.getElementById('postProd').value)   || 0;
-    var musica    = parseFloat(document.getElementById('musica').value)     || 0;
-    var locucion  = parseFloat(document.getElementById('locucion').value)   || 0;
-    var estudio   = parseFloat(document.getElementById('estudio').value)    || 0;
-    var admin     = parseFloat(document.getElementById('admin').value)      || 0;
-    var uPct      = parseFloat(document.getElementById('utilidadPct').value)  || 0;
-    var hPct      = parseFloat(document.getElementById('honorarioPct').value) || 0;
-    var rPct      = parseFloat(document.getElementById('retencionPct').value) || 0;
-    var caPct       = parseFloat(document.getElementById('comisionAgenciaPct').value) || 0;
-    var riesgo    = radioVal('riesgo');
-    var comp      = radioVal('complejidad');
-    var imp       = radioVal('impacto');
-
-    var costoBase     = (genIA + postProd) * cuadros + musica + locucion + estudio + admin;
-    var factorAjuste  = 1 + (riesgo / 100) + (comp / 100) + (imp / 100);
-    var costoAjustado = costoBase * factorAjuste;
-    var utilidad      = costoAjustado * (uPct / 100);
-    var costoTotal    = costoAjustado + utilidad;
-    var honorario     = costoTotal * (hPct / 100);
-    var retencion     = honorario * (rPct / 100);
-    var comisionAgencia = costoTotal * (caPct / 100);
-    var ventaSinIVA   = costoTotal + honorario - retencion + comisionAgencia;
-    var iva           = ventaSinIVA * 0.19;
-    var totalFactura  = ventaSinIVA + iva;
-
-    return {
-      costoBase: costoBase,
-      factorAjuste: factorAjuste,
-      costoAjustado: costoAjustado,
-      utilidad: utilidad,
-      costoTotal: costoTotal,
-      honorario: honorario,
-      retencion: retencion,
-      comisionAgencia: comisionAgencia,
-      ventaSinIVA: ventaSinIVA,
-      iva: iva,
-      totalFactura: totalFactura,
-      genIAv: genIA * cuadros,
-      postProdv: postProd * cuadros,
-      musica: musica,
-      locucion: locucion,
-      estudio: estudio,
-      admin: admin
-    };
   }
 
   function calcular() {
@@ -424,26 +372,7 @@
              '<td class="pct">' + ((f.m / ventaRef) * 100).toFixed(2) + '%</td></tr>';
     }).join('');
 
-    var scenDefs = [
-      { n: 'B\u00e1sico',   e: '&#127841;', d: -3 },
-      { n: 'Est\u00e1ndar', e: '&#127842;', d:  0, actual: true },
-      { n: 'Completo',      e: '&#128309;', d: +3 },
-      { n: 'Premium',       e: '&#128308;', d: +5 }
-    ];
 
-    document.getElementById('scenarios').innerHTML = scenDefs.map(function(s) {
-      var c  = Math.max(1, cuadros + s.d);
-      var sr = calcEscenario(c);
-      return '<div class="scenario-card' + (s.actual ? ' current' : '') + '">' +
-        (s.actual ? '<span class="badge-actual">Actual</span>' : '') +
-        '<div class="sc-title">' + s.e + ' ' + s.n + '</div>' +
-        '<div class="sc-row"><span>Cuadros:</span><span>' + c + '</span></div>' +
-        '<div class="sc-row"><span>Costo Base:</span><span>' + fmt(sr.costoBase) + '</span></div>' +
-        '<div class="sc-row"><span>Ajuste:</span><span>' + ((sr.factorAjuste - 1) * 100).toFixed(1) + '%</span></div>' +
-        '<div class="sc-row"><span>Utilidad:</span><span>' + fmt(sr.utilidad) + '</span></div>' +
-        '<div class="sc-total">' + fmt(sr.totalFactura) + '</div>' +
-        '</div>';
-    }).join('');
   }
 
   document.querySelectorAll('input').forEach(function(el) {
