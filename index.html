@@ -323,6 +323,59 @@
     return el ? parseFloat(el.value) : 0;
   }
 
+      function calcEscenario(cuadros) {
+              var genIAPorCuadro   = parseFloat(document.getElementById('genIA').value)      || 0;
+              var postProdPorCuadro = parseFloat(document.getElementById('postProd').value)   || 0;
+              var musica    = parseFloat(document.getElementById('musica').value)    || 0;
+              var locucion  = parseFloat(document.getElementById('locucion').value)  || 0;
+              var estudio   = parseFloat(document.getElementById('estudio').value)   || 0;
+              var admin     = parseFloat(document.getElementById('admin').value)     || 0;
+              var uPct      = parseFloat(document.getElementById('utilidadPct').value)    || 0;
+              var hPct      = parseFloat(document.getElementById('honorarioPct').value)   || 0;
+              var rPct      = parseFloat(document.getElementById('retencionPct').value)   || 0;
+              var cPct      = parseFloat(document.getElementById('comisionAgenciaPct').value) || 0;
+        
+              var riesgo      = radioVal('riesgo');
+              var complejidad = radioVal('complejidad');
+              var emocional   = radioVal('impacto');
+              var totalAjustePct = riesgo + complejidad + emocional;
+              var factorAjuste   = 1 + totalAjustePct / 100;
+        
+              var genIAv    = genIAPorCuadro * cuadros;
+              var postProdv = postProdPorCuadro * cuadros;
+        
+              var costoBase     = genIAv + postProdv + musica + locucion + estudio + admin;
+              var costoAjustado = costoBase * factorAjuste;
+        
+              var utilidad       = costoAjustado * (uPct / 100);
+              var ventaSinIVABase = costoAjustado + utilidad;
+              var honorario      = ventaSinIVABase * (hPct / 100);
+              var retencion      = honorario * (rPct / 100);
+              var comisionAgencia = ventaSinIVABase * (cPct / 100);
+              var ventaSinIVA    = ventaSinIVABase + honorario + comisionAgencia;
+              var iva            = ventaSinIVA * 0.19;
+              var totalFactura   = ventaSinIVA + iva;
+        
+              return {
+                        costoBase: costoBase,
+                        costoAjustado: costoAjustado,
+                        factorAjuste: factorAjuste,
+                        utilidad: utilidad,
+                        honorario: honorario,
+                        retencion: retencion,
+                        comisionAgencia: comisionAgencia,
+                        ventaSinIVA: ventaSinIVA,
+                        iva: iva,
+                        totalFactura: totalFactura,
+                        genIAv: genIAv,
+                        postProdv: postProdv,
+                        musica: musica,
+                        locucion: locucion,
+                        estudio: estudio,
+                        admin: admin
+              };
+      }
+  
   function calcular() {
     var cuadros = parseFloat(document.getElementById('numCuadros').value) || 0;
     var uPct    = parseFloat(document.getElementById('utilidadPct').value)  || 0;
