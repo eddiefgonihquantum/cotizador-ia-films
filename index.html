@@ -235,7 +235,7 @@
     <div class="result-card">
       <div class="r-label" id="r-honorarioLabel">Honorario 7%</div>
       <div class="r-value" id="r-honorario">$0</div>
-    </div>
+    </div
     <div class="result-card">
       <div class="r-label" id="r-retencionLabel">Retenci&#243;n SII 15%</div>
       <div class="r-value" id="r-retencion">$0</div>
@@ -247,6 +247,10 @@
     <div class="result-card">
       <div class="r-label">Venta sin IVA</div>
       <div class="r-value" id="r-ventaSinIVA">$0</div>
+    </div>
+    <div class="result-card">
+      <div class="r-label" id="r-comisionAgenciaLabel">Comisión Agencia 0%</div>
+      <div class="r-value" id="r-comisionAgencia">$0</div>
     </div>
     <div class="result-card highlight">
       <div class="r-label">TOTAL FACTURA</div>
@@ -285,6 +289,11 @@
         <label>Retenci&#243;n SII (%)</label>
         <input type="number" id="retencionPct" value="15" min="0" max="100" />
         <span class="param-helper">Sobre honorario productor</span>
+      </div>
+      <div class="field">
+        <label>Comisión Agencia (%)</label>
+        <input type="number" id="comisionAgenciaPct" value="0" min="0" max="100" />
+        <span class="param-helper">Se suma a venta sin IVA</span>
       </div>
     </div>
   </div>
@@ -328,6 +337,7 @@
     var uPct      = parseFloat(document.getElementById('utilidadPct').value)  || 0;
     var hPct      = parseFloat(document.getElementById('honorarioPct').value) || 0;
     var rPct      = parseFloat(document.getElementById('retencionPct').value) || 0;
+    var caPct       = parseFloat(document.getElementById('comisionAgenciaPct').value) || 0;
     var riesgo    = radioVal('riesgo');
     var comp      = radioVal('complejidad');
     var imp       = radioVal('impacto');
@@ -339,7 +349,8 @@
     var costoTotal    = costoAjustado + utilidad;
     var honorario     = costoTotal * (hPct / 100);
     var retencion     = honorario * (rPct / 100);
-    var ventaSinIVA   = costoTotal + honorario - retencion;
+    var comisionAgencia = costoTotal * (caPct / 100);
+    var ventaSinIVA   = costoTotal + honorario - retencion + comisionAgencia;
     var iva           = ventaSinIVA * 0.19;
     var totalFactura  = ventaSinIVA + iva;
 
@@ -351,6 +362,7 @@
       costoTotal: costoTotal,
       honorario: honorario,
       retencion: retencion,
+      comisionAgencia: comisionAgencia,
       ventaSinIVA: ventaSinIVA,
       iva: iva,
       totalFactura: totalFactura,
@@ -383,6 +395,8 @@
     document.getElementById('r-honorario').textContent      = fmt(r.honorario);
     document.getElementById('r-retencionLabel').textContent = 'Retenci\u00f3n SII ' + rPct + '%';
     document.getElementById('r-retencion').textContent      = fmt(r.retencion);
+      document.getElementById('r-comisionAgenciaLabel').textContent = 'Comisión Agencia ' + (parseFloat(document.getElementById('comisionAgenciaPct').value) || 0) + '%';
+      document.getElementById('r-comisionAgencia').textContent      = fmt(r.comisionAgencia);
     document.getElementById('r-iva').textContent            = fmt(r.iva);
     document.getElementById('r-ventaSinIVA').textContent    = fmt(r.ventaSinIVA);
     document.getElementById('r-totalFactura').textContent   = fmt(r.totalFactura);
