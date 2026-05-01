@@ -1,0 +1,12 @@
+{
+  "name": "cotizador-ia-films",
+  "version": "1.0.0",
+  "description": "Cotizador de presupuestos para produccion de films con IA - IA-FILMS x BangAI",
+  "scripts": {
+    "start": "npx serve .",
+    "build": "echo Static site"
+  },
+  "dependencies": {
+    "serve": "^14.2.1"
+  }
+}
